@@ -12,19 +12,14 @@ import { Subject } from 'rxjs';
 export class PostListComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<boolean>();
 
-  // posts = [
-  //   { title: 'first Post', content: 'some post content' },
-  //   { title: 'second Post', content: 'some second post content' },
-  //   { title: 'third Post', content: 'some third post content' },
-  // ];
-  posts: Post[];
+  posts: Post[] = [];
 
   constructor(
     private postService: PostService
   ) { }
 
   ngOnInit() {
-    this.posts = this.postService.getPosts();
+    this.postService.getPosts();
     this.postService.getPostUpdateListener()
         .pipe(takeUntil(this.destroy$))
         .subscribe((posts: Post[]) => {
