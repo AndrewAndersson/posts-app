@@ -1,7 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const Post = require('./models/post');
+const mongoose = require('mongoose');
+
 const app = express();
+
+mongoose.connect("mongodb+srv://andrew:sTnPbOGfyLiUF1Bu@cluster0-oudwc.mongodb.net/posts-database?retryWrites=true")
+        .then(() => {
+            console.log('Connection to db is successfuly!');
+        })
+        .catch(() => {
+            console.log('Failed of db connection!!!');
+        });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -20,8 +31,11 @@ app.use((req, res, next) => {
 });
 
 app.post('/api/posts', (req, res, next) => {
-    const post = req.body;
-    console.log(post);
+    const post = new Post({
+        title: req.body.title,
+        content: req.body.content
+    });
+    post.save();
     res.status(201).json({
         message: "create post OK",
         data: post
@@ -29,27 +43,13 @@ app.post('/api/posts', (req, res, next) => {
 });
 
 app.get('/api/posts', (req, res, next) => {
-    posts = [
-        { 
-            id: 'hsw344goo5y94',
-            title: 'Lorem ipsum dolor',
-            content: 'sit amet, consectetur adipiscing elit. Maecenas eleifend imperdiet diam quis vulputate. Mauris egestas enim luctus '
-        },
-        { 
-            id: 'hsw344dso5y94',
-            title: 'eros facilisis,',
-            content: 'vel vehicula risus semper. Vestibulum hendrerit pharetra sagittis.'
-        },
-        { 
-            id: 'hsw344dso5ga4',
-            title: 'Vivamus pharetra velit',
-            content: 'et maximus ultricies. Duis ac dui in nisl vulputate cursus. Proin commodo nec neque ut vehicula. Nam sagittis '
-        }
-    ];
-    res.status(200).json({
-        message: 'posts return successfuly',
-        data: posts
-    });
+    Post.find()
+        .then(documents => {
+            res.status(200).json({
+                message: 'posts return successfuly',
+                data: documents
+            });
+        });
 });
 
 module.exports = app;
