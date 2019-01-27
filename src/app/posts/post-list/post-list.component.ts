@@ -12,6 +12,8 @@ import { Subject } from 'rxjs';
 export class PostListComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<boolean>();
 
+  isLoading: boolean = false;
+
   posts: Post[] = [];
 
   constructor(
@@ -19,10 +21,12 @@ export class PostListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.isLoading = true;
     this.postService.getPosts();
     this.postService.getPostUpdateListener()
         .pipe(takeUntil(this.destroy$))
         .subscribe((posts: Post[]) => {
+          this.isLoading = false;
           this.posts = posts;
         });
   }
