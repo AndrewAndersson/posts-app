@@ -3,6 +3,7 @@ import { Post } from './post.model';
 import { Subject, from } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,8 @@ export class PostService {
   private postsUpdated = new Subject<Post[]>();
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) { }
 
   getPosts() {
@@ -36,6 +38,10 @@ export class PostService {
     return this.postsUpdated.asObservable();
   }
 
+  getPost(id: string) {
+    return this.http.get('http://localhost:3000/api/posts/' + id);
+  }
+
   addPost(title: string, content: string) {
     const newPost: Post = {
       id: null,
@@ -53,14 +59,26 @@ export class PostService {
         .subscribe((post) => {
           this.posts.push(post);
           this.postsUpdated.next([...this.posts]);
+          this.router.navigate(['/']);
+        });
+  }
+
+  updatePost(id: string, title: string, content: string) {
+    const updatingPost: Post = { id: id, title: title, content: content };
+    this.http.put<{message: string, data: any}>(`http://localhost:3000/api/posts/${id}`, updatingPost)
+        .subscribe(res => {
+          const oldPostIndex = this.posts.findIndex(el => el.id === updatingPost.id);
+          this.posts[oldPostIndex] = updatingPost;
+          this.postsUpdated.next([...this.posts]);
+          this.router.navigate(['/']);
         });
   }
 
   deletePost(postId: string) {
-    return this.http.delete('http://localhost:3000/api/posts/' + postId)
-                .subscribe(res => {
-                  this.posts = this.posts.filter(el => el.id !== postId);
-                  this.postsUpdated.next([...this.posts]);
-                });
+    this.http.delete('http://localhost:3000/api/posts/' + postId)
+        .subscribe(res => {
+          this.posts = this.posts.filter(el => el.id !== postId);
+          this.postsUpdated.next([...this.posts]);
+        });
   }
 }
