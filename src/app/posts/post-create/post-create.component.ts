@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, Validators, FormControl } from '@angular/forms';
 import { PostService } from '../post.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Post } from '../post.model';
+import { mimeType } from './mime-type.validator';
 
 @Component({
   selector: 'app-post-create',
@@ -15,17 +16,17 @@ export class PostCreateComponent implements OnInit {
   isLoading: boolean = false;
   post: Post;
   form: FormGroup;
+  imagePreview: any;
   constructor(
     public postService: PostService,
     public route: ActivatedRoute,
-    private fb: FormBuilder
   ) { }
 
   ngOnInit() {
-    this.form = this.fb.group({
-      title: [null, Validators.compose([Validators.required, Validators.minLength(3)])],
-      content: [null, Validators.compose([Validators.required])],
-      image: [null, Validators.required]
+    this.form = new FormGroup ({
+      title: new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
+      content: new FormControl(null, {validators: [Validators.required]}),
+      image: new FormControl(null, {validators: [Validators.required], asyncValidators: [mimeType]})
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has('postId')) {
@@ -38,7 +39,8 @@ export class PostCreateComponent implements OnInit {
               this.post = {id: res._id, title: res.title, content: res.content};
               this.form.setValue({
                 title: this.post.title,
-                content: this.post.content
+                content: this.post.content,
+                image: null
               });
             });
       } else {
@@ -52,9 +54,11 @@ export class PostCreateComponent implements OnInit {
     const postImage = (event.target as HTMLInputElement).files[0];
     this.form.patchValue({image: postImage});
     this.form.get('image').updateValueAndValidity();
-    console.log(postImage);
-    console.log(this.form);
-     
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result;
+    };
+    reader.readAsDataURL(postImage);
   }
 
   onSavePost() {
