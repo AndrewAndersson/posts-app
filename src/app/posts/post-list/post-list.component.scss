@@ -8,3 +8,11 @@
 mat-spinner {
     margin: auto;
 }
+
+.post-image {
+    width: 100%;
+    img {
+        width: 100%;
+        box-shadow: 1px 1px 5px rgba($color: #000000, $alpha: 0.5);
+    }
+}
