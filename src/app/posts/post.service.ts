@@ -24,7 +24,8 @@ export class PostService {
             return {
               title: post.title,
               content: post.content,
-              id: post._id
+              id: post._id,
+              imagePath: post.imagePath
             }
           });
         }))
@@ -52,10 +53,11 @@ export class PostService {
           return {
               title: res['data'].title,
               content: res['data'].content,
-              id: res['data']._id
+              id: res['data'].id,
+              imagePath: res['data'].imagePath
           }; 
         }))
-        .subscribe((post) => {
+        .subscribe((post: Post) => {
           this.posts.push(post);
           this.postsUpdated.next([...this.posts]);
           this.router.navigate(['/']);
