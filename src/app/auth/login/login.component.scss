@@ -1,0 +1,29 @@
+mat-card {
+    margin: auto;
+    width: 25%;
+    mat-form-field,
+    textarea {
+        width: 100%;
+    }
+}
+mat-spinner {
+    margin: auto;
+}
+
+@media (max-width: 1024px) {
+    mat-card {
+        width: 50%;
+    }
+}
+
+@media (max-width: 800px) {
+    mat-card {
+        width: 75%;
+    }
+}
+
+// @media (max-width: 479px) {
+//     mat-card {
+//         width: 75%;
+//     }
+// }
